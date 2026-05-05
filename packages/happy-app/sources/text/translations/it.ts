@@ -656,7 +656,7 @@ export const it: TranslationStructure = {
         seeLatest: 'Vedi gli ultimi aggiornamenti e miglioramenti',
         nativeUpdateAvailable: 'Aggiornamento app disponibile',
         tapToUpdateAppStore: 'Tocca per aggiornare nell\'App Store',
-        tapToUpdatePlayStore: 'Tocca per aggiornare nel Play Store',
+        tapToUpdate: 'Tocca per aggiornare',
     },
 
     changelog: {

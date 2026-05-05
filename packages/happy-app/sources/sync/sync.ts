@@ -1528,8 +1528,6 @@ class Sync {
 
                 if (Platform.OS === 'ios') {
                     apiKey = config.revenueCatAppleKey;
-                } else if (Platform.OS === 'android') {
-                    apiKey = config.revenueCatGoogleKey;
                 } else if (Platform.OS === 'web') {
                     apiKey = config.revenueCatStripeKey;
                 }

@@ -34,7 +34,7 @@ export const UpdateBanner = React.memo(() => {
             <ItemGroup>
                 <Item
                     title={t('updateBanner.nativeUpdateAvailable')}
-                    subtitle={Platform.OS === 'ios' ? t('updateBanner.tapToUpdateAppStore') : t('updateBanner.tapToUpdatePlayStore')}
+                    subtitle={Platform.OS === 'ios' ? t('updateBanner.tapToUpdateAppStore') : t('updateBanner.tapToUpdate')}
                     icon={<Ionicons name="download-outline" size={28} color={theme.colors.success} />}
                     showChevron={true}
                     onPress={handleOpenStore}
