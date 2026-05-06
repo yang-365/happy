@@ -4,9 +4,6 @@ import { VoiceConversationResponseSchema, VoiceUsageResponseSchema } from "@slop
 import { type Fastify } from "../types";
 import { log } from "@/utils/log";
 
-const VOICE_FREE_LIMIT_SECONDS = 1200;  // 20 minutes free tier per 30 days (~$0.76 cost)
-const VOICE_HARD_LIMIT_SECONDS = 18000; // 5 hours absolute cap per 30 days (even with subscription)
-const VOICE_MAX_CONVERSATIONS = 100;    // Max conversations trackable per 30 days (ElevenLabs page_size limit)
 const ELEVEN_LABS_API = "https://api.elevenlabs.io/v1/convai";
 
 function deriveElevenUserId(happyUserId: string): string {
@@ -57,31 +54,6 @@ async function getVoiceUsage(
     return { usedSeconds, conversationCount: conversations.length };
 }
 
-async function hasActiveSubscription(userId: string): Promise<boolean> {
-    const revenueCatApiKey = process.env.REVENUECAT_API_KEY;
-    if (!revenueCatApiKey) return false;
-
-    try {
-        const response = await fetch(
-            `https://api.revenuecat.com/v2/projects/proj493735ad/customers/${userId}/active_entitlements`,
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${revenueCatApiKey}`,
-                },
-            }
-        );
-        if (!response.ok) {
-            log({ module: 'voice' }, `RevenueCat check failed for ${userId}: ${response.status}`);
-            return false;
-        }
-        const data = (await response.json()) as { items?: Array<{ entitlement_id: string }> };
-        return (data.items?.length ?? 0) > 0;
-    } catch {
-        return false;
-    }
-}
-
 export function voiceRoutes(app: Fastify) {
     app.post('/v1/voice/conversations', {
         preHandler: app.authenticate,
@@ -104,52 +76,11 @@ export function voiceRoutes(app: Fastify) {
         if (!elevenLabsApiKey) {
             return reply.code(500).send({ error: 'ELEVENLABS_API_KEY not configured' });
         }
-        if (!process.env.REVENUECAT_API_KEY) {
-            return reply.code(500).send({ error: 'REVENUECAT_API_KEY not configured' });
-        }
-
         const elevenUserId = deriveElevenUserId(userId);
 
-        // Check usage from ElevenLabs directly
-        const { usedSeconds, conversationCount } = await getVoiceUsage(elevenLabsApiKey, elevenUserId);
-        log({ module: 'voice' }, `User ${userId}: ${usedSeconds}s used, ${conversationCount} convos (free=${VOICE_FREE_LIMIT_SECONDS}s, hard=${VOICE_HARD_LIMIT_SECONDS}s)`);
-
-        // Conversation count cap — we can only track 100 per query (ElevenLabs page_size limit)
-        if (conversationCount >= VOICE_MAX_CONVERSATIONS) {
-            return reply.send({
-                allowed: false as const,
-                reason: 'voice_conversation_limit_reached' as const,
-                usedSeconds,
-                limitSeconds: VOICE_HARD_LIMIT_SECONDS,
-                agentId,
-            });
-        }
-
-        // Hard cap — 5 hours, no exceptions
-        if (usedSeconds >= VOICE_HARD_LIMIT_SECONDS) {
-            return reply.send({
-                allowed: false as const,
-                reason: 'voice_hard_limit_reached' as const,
-                usedSeconds,
-                limitSeconds: VOICE_HARD_LIMIT_SECONDS,
-                agentId,
-            });
-        }
-
-        // Free tier — 1 hour, then need subscription
-        if (usedSeconds >= VOICE_FREE_LIMIT_SECONDS) {
-            const subscribed = await hasActiveSubscription(userId);
-            log({ module: 'voice' }, `User ${userId}: subscription check = ${subscribed}`);
-            if (!subscribed) {
-                return reply.send({
-                    allowed: false as const,
-                    reason: 'subscription_required' as const,
-                    usedSeconds,
-                    limitSeconds: VOICE_FREE_LIMIT_SECONDS,
-                    agentId,
-                });
-            }
-        }
+        // Track usage for informational purposes only — no limits enforced
+        const { usedSeconds } = await getVoiceUsage(elevenLabsApiKey, elevenUserId);
+        log({ module: 'voice' }, `User ${userId}: ${usedSeconds}s used (unlimited mode)`);
 
         // Get conversation token (JWT for WebRTC) with user identity
         try {
@@ -182,7 +113,7 @@ export function voiceRoutes(app: Fastify) {
                 agentId,
                 elevenUserId,
                 usedSeconds,
-                limitSeconds: usedSeconds >= VOICE_FREE_LIMIT_SECONDS ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS,
+                limitSeconds: 0,
             });
         } catch (error) {
             log({ module: 'voice' }, `ElevenLabs request error for user ${userId}: ${error}`);
@@ -213,15 +144,12 @@ export function voiceRoutes(app: Fastify) {
         const elevenUserId = deriveElevenUserId(userId);
 
         try {
-            const [{ usedSeconds, conversationCount }, subscribed] = await Promise.all([
-                getVoiceUsage(elevenLabsApiKey, elevenUserId),
-                hasActiveSubscription(userId),
-            ]);
+            const { usedSeconds, conversationCount } = await getVoiceUsage(elevenLabsApiKey, elevenUserId);
             return reply.send({
                 usedSeconds,
-                limitSeconds: subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS,
+                limitSeconds: 0,
                 conversationCount,
-                conversationLimit: VOICE_MAX_CONVERSATIONS,
+                conversationLimit: 0,
                 elevenUserId,
             });
         } catch (error) {
