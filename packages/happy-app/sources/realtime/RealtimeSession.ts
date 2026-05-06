@@ -1,6 +1,5 @@
 import type { VoiceSession } from './types';
 import { fetchVoiceCredentials } from '@/sync/apiVoice';
-import { sync } from '@/sync/sync';
 import { Modal } from '@/modal';
 import { TokenStorage } from '@/auth/tokenStorage';
 import { t } from '@/text';
@@ -9,12 +8,9 @@ import { storage } from '@/sync/storage';
 import {
     getVoiceMessageCount,
     getVoiceOnboardingPromptLoadCount,
-    getVoiceSoftPaywallShownCount,
     incrementVoiceOnboardingPromptLoadCount,
-    incrementVoiceSoftPaywallShown,
 } from '@/sync/persistence';
 import { buildVoiceFirstMessage, buildVoiceSystemPrompt } from './voiceSystemPrompt';
-import { getVoiceUpsellVariant } from './voiceExperiment';
 
 let voiceSession: VoiceSession | null = null;
 let voiceSessionStarted: boolean = false;
@@ -75,42 +71,9 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
 
         if (!response.allowed) {
             storage.getState().setRealtimeStatus('disconnected');
-
-            if (response.reason === 'voice_conversation_limit_reached') {
-                Modal.alert(
-                    t('errors.voiceLimitReachedTitle'),
-                    t('errors.voiceConversationLimitReached'),
-                );
-                return null;
-            }
-
-            // Server hard-declined — must pay to continue
-            console.log('[Voice] Not allowed (reason: %s), presenting must-pay paywall...', response.reason);
-            const result = await sync.presentPaywall('voice_must_pay');
-            console.log('[Voice] Must-pay paywall result:', result);
-            if (result.purchased) {
-                return startRealtimeSession(sessionId, initialContext);
-            }
+            console.log('[Voice] Not allowed (reason: %s)', response.reason);
+            Modal.alert(t('common.error'), t('errors.voiceLimitReachedTitle'));
             return null;
-        }
-
-        const hasPro = storage.getState().purchases.entitlements['pro'] ?? false;
-        const { voiceUpsellOverride, devModeEnabled } = storage.getState().localSettings;
-        const voiceUpsellVariant = getVoiceUpsellVariant({
-            override: voiceUpsellOverride,
-            overrideEnabled: __DEV__ || devModeEnabled,
-        });
-
-        if (
-            !hasPro &&
-            voiceUpsellVariant === 'show-paywall-before-first-voice-chat' &&
-            getVoiceSoftPaywallShownCount() < 1
-        ) {
-            console.log('[Voice] First voice attempt on free tier, showing soft paywall...');
-            incrementVoiceSoftPaywallShown();
-            const result = await sync.presentPaywall('voice_trial_eligible');
-            console.log('[Voice] Soft paywall result:', result);
-            // Dismissed or error — continue anyway, they can still use free tier.
         }
 
         currentSessionId = sessionId;
@@ -120,12 +83,12 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
             initialContext,
             onboardingPromptLoadCount,
             voiceMessageCount,
-            includePaidVoiceOnboarding: !hasPro && voiceUpsellVariant === 'voice-onboarding-and-upsell',
+            includePaidVoiceOnboarding: false,
         });
         const firstMessage = buildVoiceFirstMessage({
-            hasPro,
+            hasPro: true,
             onboardingPromptLoadCount,
-            includePaidVoiceOnboarding: voiceUpsellVariant === 'voice-onboarding-and-upsell',
+            includePaidVoiceOnboarding: false,
         });
 
         const startedConversationId = await voiceSession.startSession({
@@ -137,9 +100,6 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
             agentId: response.agentId,
             userId: response.elevenUserId,
         });
-        if (!hasPro && voiceUpsellVariant === 'voice-onboarding-and-upsell') {
-            incrementVoiceOnboardingPromptLoadCount();
-        }
         currentVoiceConversationId = response.conversationId ?? startedConversationId;
         currentVoiceSessionStartedAt = Date.now();
         voiceSessionStarted = true;
