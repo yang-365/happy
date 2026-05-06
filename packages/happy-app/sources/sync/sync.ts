@@ -89,6 +89,7 @@ class Sync {
     private sendAbortControllers = new Map<string, AbortController>();
     private sessionLastSeq = new Map<string, number>();
     private pendingOutbox = new Map<string, OutboxMessage[]>();
+    private turnCompletionTimers = new Map<string, ReturnType<typeof setTimeout>>();
     private sessionMessageQueue = new Map<string, NormalizedMessage[]>();
     private sessionQueueProcessing = new Set<string>();
     private sessionMessageLocks = new Map<string, AsyncLock>();
@@ -163,6 +164,10 @@ class Sync {
                 this.friendsSync.invalidate();
                 this.friendRequestsSync.invalidate();
                 this.feedSync.invalidate();
+                // Re-fetch messages for all sessions that have been loaded
+                for (const sync of this.messagesSync.values()) {
+                    sync.invalidate();
+                }
             } else {
                 log.log(`📱 App state changed to: ${nextAppState}`);
                 this.maybeStartBackgroundSendWatchdog();
@@ -260,6 +265,27 @@ class Sync {
             this.messagesSync.set(sessionId, sync);
         }
         return sync;
+    }
+
+    /**
+     * Schedule a delayed message fetch after a turn completes.
+     * This ensures we catch any final messages that may not have been
+     * delivered via socket (e.g., the agent's text response committed
+     * to the DB slightly after the turn-end event).
+     */
+    private scheduleTurnCompletionFetch(sessionId: string) {
+        // Clear any existing timer for this session
+        const existing = this.turnCompletionTimers.get(sessionId);
+        if (existing) {
+            clearTimeout(existing);
+        }
+
+        const timer = setTimeout(() => {
+            this.turnCompletionTimers.delete(sessionId);
+            log.log(`🔄 Turn completion fetch for session ${sessionId}`);
+            this.getMessagesSync(sessionId).invalidate();
+        }, 1000);
+        this.turnCompletionTimers.set(sessionId, timer);
     }
 
     private getSendSync(sessionId: string): InvalidateSync {
@@ -1724,9 +1750,10 @@ class Sync {
             this.friendsSync.invalidate();
             this.friendRequestsSync.invalidate();
             this.feedSync.invalidate();
-            // Messages are fetched lazily per-session via onSessionVisible (called by SessionView
-            // when realtimeStatus changes). Session metadata + agentState (including permission
-            // requests) are already refreshed by sessionsSync.invalidate() above.
+            // Re-fetch messages for all sessions that have been loaded
+            for (const sync of this.messagesSync.values()) {
+                sync.invalidate();
+            }
             for (const sync of this.sendSync.values()) {
                 sync.invalidate();
             }
@@ -1814,6 +1841,7 @@ class Sync {
                     const currentLastSeq = this.sessionLastSeq.get(updateData.body.sid);
                     const incomingSeq = updateData.body.message.seq;
                     if (lastMessage && currentLastSeq !== undefined && incomingSeq === currentLastSeq + 1) {
+                        log.log(`💬 [new-message] Fast-path: seq ${incomingSeq} (prev ${currentLastSeq}), role=${lastMessage.role}, sid=${updateData.body.sid}`);
                         this.enqueueMessages(updateData.body.sid, [lastMessage]);
                         this.sessionLastSeq.set(updateData.body.sid, incomingSeq);
                         let hasMutableTool = false;
@@ -1824,8 +1852,18 @@ class Sync {
                             gitStatusSync.invalidate(updateData.body.sid);
                         }
                     } else {
+                        log.log(`💬 [new-message] Slow-path: lastMessage=${!!lastMessage}, currentLastSeq=${currentLastSeq}, incomingSeq=${incomingSeq}, sid=${updateData.body.sid}`);
                         this.getMessagesSync(updateData.body.sid).invalidate();
                     }
+
+                    // Schedule delayed re-fetch when a turn completes to ensure
+                    // final agent text messages are picked up even if they weren't
+                    // delivered via the socket fast-path.
+                    if (isTaskComplete) {
+                        this.scheduleTurnCompletionFetch(updateData.body.sid);
+                    }
+                } else {
+                    log.log(`💬 [new-message] normalizeRawMessage returned null, sid=${updateData.body.sid}`);
                 }
             }
 
@@ -1857,6 +1895,11 @@ class Sync {
             this.sessionMessageLocks.delete(sessionId);
             this.sessionMessageQueue.delete(sessionId);
             this.sessionQueueProcessing.delete(sessionId);
+            const turnTimer = this.turnCompletionTimers.get(sessionId);
+            if (turnTimer) {
+                clearTimeout(turnTimer);
+                this.turnCompletionTimers.delete(sessionId);
+            }
 
             log.log(`🗑️ Session ${sessionId} deleted from local storage`);
         } else if (updateData.body.t === 'update-session') {
@@ -2190,11 +2233,19 @@ class Sync {
         for (const [sessionId, update] of updates) {
             const session = storage.getState().sessions[sessionId];
             if (session) {
+                // Detect thinking → not-thinking transition (turn completed)
+                // and schedule a delayed message fetch to pick up any final messages
+                const wasThinking = session.thinking;
+                const isNowThinking = update.thinking ?? false;
+                if (wasThinking && !isNowThinking) {
+                    this.scheduleTurnCompletionFetch(sessionId);
+                }
+
                 sessions.push({
                     ...session,
                     active: update.active,
                     activeAt: update.activeAt,
-                    thinking: update.thinking ?? false,
+                    thinking: isNowThinking,
                     thinkingAt: update.activeAt // Always use activeAt for consistency
                 });
             }
