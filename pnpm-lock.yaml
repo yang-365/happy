@@ -607,7 +607,7 @@ importers:
         version: 55.0.9(expo@55.0.8)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))
       expo-router:
         specifier: ~55.0.7
-        version: 55.0.7(f2f128c770bbe20ed6ea8c79a26e6f99)
+        version: 55.0.7(xihhe5wos52a6gla7scetrfa2u)
       expo-screen-capture:
         specifier: ~55.0.0
         version: 55.0.9(expo@55.0.8)(react@19.2.0)
@@ -629,9 +629,6 @@ importers:
       expo-status-bar:
         specifier: ~55.0.0
         version: 55.0.4(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-      expo-store-review:
-        specifier: ~55.0.0
-        version: 55.0.9(expo@55.0.8)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))
       expo-system-ui:
         specifier: ~55.0.0
         version: 55.0.10(expo@55.0.8)(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))
@@ -701,12 +698,6 @@ importers:
       react-native-nitro-modules:
         specifier: 0.35.2
         version: 0.35.2(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-      react-native-purchases:
-        specifier: ~9.14.0
-        version: 9.14.0(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-      react-native-purchases-ui:
-        specifier: ~9.14.0
-        version: 9.14.0(react-native-purchases@9.14.0(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
       react-native-quick-base64:
         specifier: ^2.2.1
         version: 2.2.2(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
@@ -718,7 +709,7 @@ importers:
         version: 5.7.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
       react-native-screen-transitions:
         specifier: ^1.2.0
-        version: 1.2.0(e2a4937795c1abcaf692f7a5f50b0ba2)
+        version: 1.2.0(h4n2ro3azd4y7u5ffu5wskcpka)
       react-native-screens:
         specifier: ~4.22.0
         version: 4.22.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
@@ -4318,14 +4309,8 @@ packages:
       react-redux:
         optional: true
 
-  '@revenuecat/purchases-js-hybrid-mappings@17.52.0':
-    resolution: {integrity: sha512-gkl7vZE6J6Jn8dG/FsKCpXWWHKBUe/X3VcLg3zd3ii4kHoaNrX22AAin4DaoL8FwclZkS2Khc/tEw9Hpq9sYuQ==}
-
   '@revenuecat/purchases-js@1.28.0':
     resolution: {integrity: sha512-FtmOsoc4JNWueFnMtT+fIBAhTLxT1Uu7e0zTEg0WaUTvMWS8GOSxsKiT4h07qDdPiqUQw4Eh+GdhueSrXMjUpw==}
-
-  '@revenuecat/purchases-typescript-internal@17.52.0':
-    resolution: {integrity: sha512-HtaWhZkny1TsmGnQ7XK4nN/Pw7Mwaay/1hEcvo4Y+EWNgyPuGUVbeM3dILV2q8nYLW48FBbP7cPnDqXxQTRvLA==}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.16':
     resolution: {integrity: sha512-rhY3k7Bsae9qQfOtph2Pm2jZEA+s8Gmjoz4hhmx70K9iMQ/ddeae+xhRQcM5IuVx5ry1+bGfkvMn7D6MJggVSA==}
@@ -7350,12 +7335,6 @@ packages:
       react: '*'
       react-native: '*'
 
-  expo-store-review@55.0.9:
-    resolution: {integrity: sha512-24l1XNcdVWlcfL3n36WWPnT7XeSI+Imf5YiAwGY0dc+NwJkVZ42krTOZc/o9JmlSW/MMz6nArTckzmpicVJKxA==}
-    peerDependencies:
-      expo: '*'
-      react-native: '*'
-
   expo-structured-headers@55.0.0:
     resolution: {integrity: sha512-udaNvuWb45/Sryq9FLC/blwgOChhznuqlTrUzVjC0T83pMdcmscKJX23lnNDW6hCec8p81Y3z1DIFwIyk0g/PQ==}
 
@@ -10231,27 +10210,6 @@ packages:
       react: '*'
       react-native: '*'
 
-  react-native-purchases-ui@9.14.0:
-    resolution: {integrity: sha512-mpeBpz6RISe3cSTXeq0wiY6fDaGWMp4md1Qr1L9uaRuoZguXlPeDIYfKfYY8hJPS0EnHEpydZBYtlqOsg623SA==}
-    peerDependencies:
-      react: '*'
-      react-native: '>= 0.73.0'
-      react-native-purchases: 9.14.0
-      react-native-web: '*'
-    peerDependenciesMeta:
-      react-native-web:
-        optional: true
-
-  react-native-purchases@9.14.0:
-    resolution: {integrity: sha512-wfTI5D54lQPUYP06t5Re0o+sAJXUpZ8s3BrPwpDtyChppJaSH2l7MlSeolY4BT3ij/rdpFjzaOsjIHQxTCDQWA==}
-    peerDependencies:
-      react: '>= 16.6.3'
-      react-native: '>= 0.73.0'
-      react-native-web: '*'
-    peerDependenciesMeta:
-      react-native-web:
-        optional: true
-
   react-native-quick-base64@2.2.2:
     resolution: {integrity: sha512-WLHSifHLoamr2kF00Gov0W9ud6CfPshe1rmqWTquVIi9c62qxOaJCFVDrXFZhEBU8B8PvGLVuOlVKH78yhY0Fg==}
     peerDependencies:
@@ -11691,15 +11649,17 @@ packages:
 
   uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@7.0.3:
     resolution: {integrity: sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -13447,7 +13407,7 @@ snapshots:
       ws: 8.19.0
       zod: 3.25.76
     optionalDependencies:
-      expo-router: 55.0.7(f2f128c770bbe20ed6ea8c79a26e6f99)
+      expo-router: 55.0.7(xihhe5wos52a6gla7scetrfa2u)
       react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
     transitivePeerDependencies:
       - '@expo/dom-webview'
@@ -13754,7 +13714,7 @@ snapshots:
       react: 19.2.0
     optionalDependencies:
       '@expo/metro-runtime': 55.0.6(@expo/dom-webview@55.0.3)(expo@55.0.8)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-      expo-router: 55.0.7(f2f128c770bbe20ed6ea8c79a26e6f99)
+      expo-router: 55.0.7(xihhe5wos52a6gla7scetrfa2u)
       react-dom: 19.2.0(react@19.2.0)
     transitivePeerDependencies:
       - supports-color
@@ -15989,13 +15949,7 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
 
-  '@revenuecat/purchases-js-hybrid-mappings@17.52.0':
-    dependencies:
-      '@revenuecat/purchases-js': 1.28.0
-
   '@revenuecat/purchases-js@1.28.0': {}
-
-  '@revenuecat/purchases-typescript-internal@17.52.0': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.16':
     optional: true
@@ -19125,7 +19079,7 @@ snapshots:
       expo: 55.0.8(@babel/core@7.28.6)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.7)(react-dom@19.2.0(react@19.2.0))(react-native-webview@13.15.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
 
-  expo-router@55.0.7(f2f128c770bbe20ed6ea8c79a26e6f99):
+  expo-router@55.0.7(xihhe5wos52a6gla7scetrfa2u):
     dependencies:
       '@expo/log-box': 55.0.7(@expo/dom-webview@55.0.3)(expo@55.0.8)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
       '@expo/metro-runtime': 55.0.6(@expo/dom-webview@55.0.3)(expo@55.0.8)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
@@ -19228,11 +19182,6 @@ snapshots:
       react: 19.2.0
       react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
       react-native-is-edge-to-edge: 1.2.1(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-
-  expo-store-review@55.0.9(expo@55.0.8)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)):
-    dependencies:
-      expo: 55.0.8(@babel/core@7.28.6)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.7)(react-dom@19.2.0(react@19.2.0))(react-native-webview@13.15.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
-      react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
 
   expo-structured-headers@55.0.0: {}
 
@@ -22799,24 +22748,6 @@ snapshots:
       react: 19.2.0
       react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
 
-  react-native-purchases-ui@9.14.0(react-native-purchases@9.14.0(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0):
-    dependencies:
-      '@revenuecat/purchases-typescript-internal': 17.52.0
-      react: 19.2.0
-      react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
-      react-native-purchases: 9.14.0(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
-    optionalDependencies:
-      react-native-web: 0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-
-  react-native-purchases@9.14.0(react-native-web@0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0):
-    dependencies:
-      '@revenuecat/purchases-js-hybrid-mappings': 17.52.0
-      '@revenuecat/purchases-typescript-internal': 17.52.0
-      react: 19.2.0
-      react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
-    optionalDependencies:
-      react-native-web: 0.21.2(encoding@0.1.13)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-
   react-native-quick-base64@2.2.2(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0):
     dependencies:
       react: 19.2.0
@@ -22835,7 +22766,7 @@ snapshots:
       react: 19.2.0
       react-native: 0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0)
 
-  react-native-screen-transitions@1.2.0(e2a4937795c1abcaf692f7a5f50b0ba2):
+  react-native-screen-transitions@1.2.0(h4n2ro3azd4y7u5ffu5wskcpka):
     dependencies:
       '@react-navigation/native': 7.2.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)
       '@react-navigation/native-stack': 7.14.7(@react-native-masked-view/masked-view@0.3.2(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(@react-navigation/native@7.2.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native-safe-area-context@5.7.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native-screens@4.22.0(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.2.0))(react@19.2.0)

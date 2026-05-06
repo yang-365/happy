@@ -672,7 +672,7 @@ export const en: TranslationStructure = {
         seeLatest: 'See the latest updates and improvements',
         nativeUpdateAvailable: 'App Update Available',
         tapToUpdateAppStore: 'Tap to update in App Store',
-        tapToUpdatePlayStore: 'Tap to update in Play Store',
+        tapToUpdate: 'Tap to update',
     },
 
     changelog: {

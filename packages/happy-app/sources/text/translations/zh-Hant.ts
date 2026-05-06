@@ -658,7 +658,7 @@ export const zhHant: TranslationStructure = {
         seeLatest: '查看最新更新和改進',
         nativeUpdateAvailable: '應用程式更新可用',
         tapToUpdateAppStore: '點擊在 App Store 中更新',
-        tapToUpdatePlayStore: '點擊在 Play Store 中更新',
+        tapToUpdate: '點擊更新',
     },
 
     changelog: {

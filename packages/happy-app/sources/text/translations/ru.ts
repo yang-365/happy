@@ -662,7 +662,7 @@ export const ru: TranslationStructure = {
         seeLatest: 'Посмотреть последние обновления и улучшения',
         nativeUpdateAvailable: 'Доступно обновление приложения',
         tapToUpdateAppStore: 'Нажмите для обновления в App Store',
-        tapToUpdatePlayStore: 'Нажмите для обновления в Play Store',
+        tapToUpdate: 'Нажмите для обновления',
     },
 
     changelog: {

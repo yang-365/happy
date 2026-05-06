@@ -659,7 +659,7 @@ export const ja: TranslationStructure = {
         seeLatest: '最新のアップデートと改善を確認',
         nativeUpdateAvailable: 'アプリのアップデートが利用可能',
         tapToUpdateAppStore: 'タップしてApp Storeで更新',
-        tapToUpdatePlayStore: 'タップしてPlay Storeで更新',
+        tapToUpdate: 'タップして更新',
     },
 
     changelog: {

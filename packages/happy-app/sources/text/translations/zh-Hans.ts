@@ -659,7 +659,7 @@ export const zhHans: TranslationStructure = {
         seeLatest: '查看最新更新和改进',
         nativeUpdateAvailable: '应用更新可用',
         tapToUpdateAppStore: '点击在 App Store 中更新',
-        tapToUpdatePlayStore: '点击在 Play Store 中更新',
+        tapToUpdate: '点击更新',
     },
 
     changelog: {
