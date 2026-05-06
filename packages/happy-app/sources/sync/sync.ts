@@ -163,6 +163,10 @@ class Sync {
                 this.friendsSync.invalidate();
                 this.friendRequestsSync.invalidate();
                 this.feedSync.invalidate();
+                // Re-fetch messages for all sessions that have been loaded
+                for (const sync of this.messagesSync.values()) {
+                    sync.invalidate();
+                }
             } else {
                 log.log(`📱 App state changed to: ${nextAppState}`);
                 this.maybeStartBackgroundSendWatchdog();
@@ -1724,9 +1728,10 @@ class Sync {
             this.friendsSync.invalidate();
             this.friendRequestsSync.invalidate();
             this.feedSync.invalidate();
-            // Messages are fetched lazily per-session via onSessionVisible (called by SessionView
-            // when realtimeStatus changes). Session metadata + agentState (including permission
-            // requests) are already refreshed by sessionsSync.invalidate() above.
+            // Re-fetch messages for all sessions that have been loaded
+            for (const sync of this.messagesSync.values()) {
+                sync.invalidate();
+            }
             for (const sync of this.sendSync.values()) {
                 sync.invalidate();
             }
