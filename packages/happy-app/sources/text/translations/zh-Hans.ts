@@ -271,6 +271,14 @@ export const zhHans: TranslationStructure = {
         title: '开始新会话',
         machineOffline: '设备离线',
         switchMachinesHint: '• 点击上方的设备来切换设备',
+        enterProjectPath: '输入项目路径',
+        usingCustomPath: '使用上方自定义路径',
+        browseDirectories: '浏览目录',
+        cannotAccessDirectory: '无法访问此目录',
+        selectThisDir: '选择',
+        emptyDirectory: '空目录',
+        recentDirectories: '最近使用',
+        noRecentProjects: '暂无最近项目',
     },
 
     sessionHistory: {

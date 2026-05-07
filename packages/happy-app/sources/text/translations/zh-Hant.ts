@@ -270,6 +270,14 @@ export const zhHant: TranslationStructure = {
         title: '開始新工作階段',
         machineOffline: '裝置離線',
         switchMachinesHint: '• 點擊上方的裝置來切換裝置',
+        enterProjectPath: '輸入專案路徑',
+        usingCustomPath: '使用上方自訂路徑',
+        browseDirectories: '瀏覽目錄',
+        cannotAccessDirectory: '無法存取此目錄',
+        selectThisDir: '選擇',
+        emptyDirectory: '空目錄',
+        recentDirectories: '最近使用',
+        noRecentProjects: '尚無最近專案',
     },
 
     sessionHistory: {
