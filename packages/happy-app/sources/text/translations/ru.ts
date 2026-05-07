@@ -260,6 +260,14 @@ export const ru: TranslationStructure = {
         title: 'Начать новую сессию',
         machineOffline: 'Машина недоступна',
         switchMachinesHint: '• Переключите машину, нажав на неё выше',
+        enterProjectPath: 'Введите путь к проекту',
+        usingCustomPath: 'используется путь выше',
+        browseDirectories: 'Обзор каталогов',
+        cannotAccessDirectory: 'Не удалось получить доступ к каталогу',
+        selectThisDir: 'Выбрать',
+        emptyDirectory: 'Пустой каталог',
+        recentDirectories: 'Недавние',
+        noRecentProjects: 'нет недавних проектов',
     },
 
     sessionHistory: {

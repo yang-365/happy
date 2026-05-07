@@ -291,6 +291,14 @@ export const pl: TranslationStructure = {
         title: 'Rozpocznij nową sesję',
         machineOffline: 'Maszyna jest offline',
         switchMachinesHint: '• Przełącz maszynę, klikając na nią powyżej',
+        enterProjectPath: 'Wprowadź ścieżkę projektu',
+        usingCustomPath: 'używanie ścieżki niestandardowej powyżej',
+        browseDirectories: 'Przeglądaj katalogi',
+        cannotAccessDirectory: 'Nie można uzyskać dostępu do tego katalogu',
+        selectThisDir: 'Wybierz',
+        emptyDirectory: 'Pusty katalog',
+        recentDirectories: 'Ostatnie',
+        noRecentProjects: 'brak ostatnich projektów',
     },
 
     sessionHistory: {

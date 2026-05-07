@@ -272,6 +272,14 @@ export const it: TranslationStructure = {
         title: 'Avvia nuova sessione',
         machineOffline: 'La macchina è offline',
         switchMachinesHint: '• Cambia macchina cliccando sulla macchina sopra',
+        enterProjectPath: 'Inserisci il percorso del progetto',
+        usingCustomPath: 'percorso personalizzato sopra',
+        browseDirectories: 'Sfoglia directory',
+        cannotAccessDirectory: 'Impossibile accedere a questa directory',
+        selectThisDir: 'Seleziona',
+        emptyDirectory: 'Directory vuota',
+        recentDirectories: 'Recenti',
+        noRecentProjects: 'nessun progetto recente',
     },
 
     sessionHistory: {
