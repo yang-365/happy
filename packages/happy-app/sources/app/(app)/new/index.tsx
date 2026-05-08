@@ -1135,7 +1135,7 @@ function NewSessionScreen() {
             style={styles.container}
         >
             <View style={styles.inner}>
-                <View style={{ maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 12, gap: 8, paddingTop: 12 }}>
+                <View style={{ maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 12, gap: 8, paddingTop: 12, zIndex: 11 }}>
 
                     {/* Config box */}
                     <View style={styles.configBox}>
@@ -1363,7 +1363,7 @@ function NewSessionScreen() {
 
                     {/* Web: inline popover */}
                     {Platform.OS === 'web' && activePicker && (
-                        <View style={[styles.popover, { backgroundColor: theme.colors.header.background }]}>
+                        <View style={[styles.popover, { backgroundColor: theme.colors.header.background, zIndex: 11 }]}>
                             {activePicker === 'path' ? (
                                 <PathPickerContent
                                     title="Project"
@@ -1386,7 +1386,7 @@ function NewSessionScreen() {
                 {/* Web: click-away backdrop */}
                 {Platform.OS === 'web' && activePicker && (
                     <Pressable
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}
                         onPress={() => setActivePicker(null)}
                     />
                 )}
