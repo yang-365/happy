@@ -589,9 +589,10 @@ export const en = {
         promptGuideDescription: 'Your ElevenLabs agent needs:\n\n• Tool: messageClaudeCode — parameter: message (string). Sends a message to the active coding session.\n• Tool: processPermissionRequest — parameter: decision ("allow" or "deny"). Approves or denies a pending tool permission.\n• Dynamic variable: {{initialConversationContext}} — receives session history and context on start.\n\nThe agent acts as a voice bridge between the user and coding agents. It should be concise, only respond when addressed, and report when a coding agent finishes work.',
         // Voice usage
         usageTitle: 'Usage (Last 30 Days)',
-        usageFooter: 'Voice time used in the last 30 days. Free tier: 20 min. Subscribed: 5 hours. Max 100 conversations per month.',
+        usageFooter: 'Voice usage in the last 30 days. No limits on voice time or conversations.',
         usageLabel: 'Voice Time',
         conversationsLabel: 'Conversations',
+        unlimited: 'Unlimited',
         usageUsed: ({ used, limit }: { used: string; limit: string }) => `${used} used of ${limit}`,
         supportTitle: 'Upgrade Voice',
         supportSubtitle: 'Get more voice time and support development',
