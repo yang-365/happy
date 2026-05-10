@@ -35,7 +35,7 @@ import { useAllMachines, useSessions, useSetting, storage } from '@/sync/storage
 import type { NewSessionAgentType } from '@/sync/persistence';
 import { sync } from '@/sync/sync';
 import { isMachineOnline } from '@/utils/machineUtils';
-import { machineSpawnNewSession } from '@/sync/ops';
+import { machineSpawnNewSession, machineBash } from '@/sync/ops';
 import { createWorktree, listWorktrees } from '@/utils/worktree';
 import { resolveAbsolutePath } from '@/utils/pathUtils';
 import { formatPathRelativeToHome, formatLastSeen } from '@/utils/sessionUtils';
@@ -288,11 +288,16 @@ function PickerContent({
     );
 }
 
+type DirEntry = { name: string; isDirectory: boolean };
+
 function PathPickerContent({
     title,
     items,
     value,
     homeDir,
+    machineId,
+    machineOnline,
+    recentPaths,
     onChangeValue,
     onDone,
 }: {
@@ -300,6 +305,9 @@ function PathPickerContent({
     items: PickerItem[];
     value: string | null;
     homeDir?: string;
+    machineId: string | null;
+    machineOnline: boolean;
+    recentPaths: PickerItem[];
     onChangeValue: (value: string) => void;
     onDone?: () => void;
 }) {
@@ -307,6 +315,34 @@ function PathPickerContent({
     const inputRef = React.useRef<TextInput>(null);
     const currentValue = value ?? '';
     const [selection, setSelection] = React.useState<{ start: number; end: number } | undefined>(undefined);
+
+    // Directory browser state
+    const [browseDir, setBrowseDir] = React.useState<string | null>(null);
+    const [dirEntries, setDirEntries] = React.useState<DirEntry[]>([]);
+    const [isBrowsing, setIsBrowsing] = React.useState(false);
+    const [browseError, setBrowseError] = React.useState<string | null>(null);
+    const [showBrowser, setShowBrowser] = React.useState(false);
+
+    // Merge recent paths from settings + session history, deduplicated
+    const allRecentItems = React.useMemo(() => {
+        const seen = new Set<string>();
+        const merged: PickerItem[] = [];
+        for (const item of recentPaths) {
+            const norm = normalizePathForComparison(item.key, homeDir);
+            if (norm && !seen.has(norm)) {
+                seen.add(norm);
+                merged.push(item);
+            }
+        }
+        for (const item of items) {
+            const norm = normalizePathForComparison(item.key, homeDir);
+            if (norm && !seen.has(norm)) {
+                seen.add(norm);
+                merged.push(item);
+            }
+        }
+        return merged;
+    }, [items, recentPaths, homeDir]);
 
     React.useEffect(() => {
         const timeout = setTimeout(() => {
@@ -321,12 +357,12 @@ function PathPickerContent({
             return null;
         }
 
-        const match = items.find((item) =>
+        const match = allRecentItems.find((item) =>
             normalizePathForComparison(item.key, homeDir) === normalizedValue,
         );
 
         return match?.key ?? null;
-    }, [currentValue, homeDir, items]);
+    }, [currentValue, homeDir, allRecentItems]);
 
     const handleSuggestionPress = React.useCallback((item: PickerItem) => {
         const nextValue = item.label;
@@ -339,6 +375,78 @@ function PathPickerContent({
             inputRef.current?.focus();
         }, 0);
     }, [onChangeValue]);
+
+    // Fetch directory contents from remote machine
+    const fetchDirectory = React.useCallback(async (dirPath: string) => {
+        if (!machineId || !machineOnline) return;
+
+        setIsBrowsing(true);
+        setBrowseError(null);
+        setDirEntries([]);
+        setBrowseDir(dirPath);
+
+        try {
+            const result = await machineBash(
+                machineId,
+                `ls -1pA "${dirPath}" 2>/dev/null | head -100`,
+                dirPath,
+            );
+
+            if (!result.success || result.exitCode !== 0) {
+                setBrowseError(t('newSession.cannotAccessDirectory'));
+                return;
+            }
+
+            const entries: DirEntry[] = result.stdout
+                .split('\n')
+                .filter((line) => line.trim().length > 0)
+                .map((line) => {
+                    const isDir = line.endsWith('/');
+                    return {
+                        name: isDir ? line.slice(0, -1) : line,
+                        isDirectory: isDir,
+                    };
+                })
+                .filter((e) => !e.name.startsWith('.'))
+                .sort((a, b) => {
+                    if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+            setDirEntries(entries);
+        } catch {
+            setBrowseError(t('newSession.cannotAccessDirectory'));
+        } finally {
+            setIsBrowsing(false);
+        }
+    }, [machineId, machineOnline]);
+
+    const handleBrowseOpen = React.useCallback(() => {
+        setShowBrowser(true);
+        const startDir = currentValue.trim()
+            ? resolveAbsolutePath(currentValue.trim(), homeDir)
+            : (homeDir ?? '/');
+        fetchDirectory(startDir);
+    }, [currentValue, homeDir, fetchDirectory]);
+
+    const handleBrowseNavigate = React.useCallback((entryName: string) => {
+        if (!browseDir) return;
+        const newPath = browseDir === '/' ? `/${entryName}` : `${browseDir}/${entryName}`;
+        fetchDirectory(newPath);
+    }, [browseDir, fetchDirectory]);
+
+    const handleBrowseUp = React.useCallback(() => {
+        if (!browseDir || browseDir === '/') return;
+        const parent = browseDir.replace(/\/[^/]+\/?$/, '') || '/';
+        fetchDirectory(parent);
+    }, [browseDir, fetchDirectory]);
+
+    const handleBrowseSelect = React.useCallback((dirPath: string) => {
+        const displayPath = formatPathRelativeToHome(dirPath, homeDir);
+        onChangeValue(displayPath);
+        setSelection({ start: displayPath.length, end: displayPath.length });
+        setShowBrowser(false);
+    }, [homeDir, onChangeValue]);
 
     const isCustomPath = currentValue.trim().length > 0 && matchedItemKey === null;
     const handleSelectionChange = React.useCallback((event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
@@ -397,7 +505,7 @@ function PathPickerContent({
                         onChangeText={onChangeValue}
                         onSelectionChange={handleSelectionChange}
                         selection={selection}
-                        placeholder="Enter project path"
+                        placeholder={t('newSession.enterProjectPath')}
                         placeholderTextColor={theme.colors.textSecondary}
                         style={[pickerStyles.pathTextInput, { color: theme.colors.text }]}
                         autoCapitalize="none"
@@ -412,16 +520,118 @@ function PathPickerContent({
 
             {isCustomPath && (
                 <Text style={[pickerStyles.pathMetaText, { color: theme.colors.textSecondary }]}>
-                    using custom path above
+                    {t('newSession.usingCustomPath')}
                 </Text>
             )}
 
-            <Text style={[pickerStyles.sectionLabel, { color: theme.colors.textSecondary }]}>
-                Recent
-            </Text>
-
             <ScrollView style={pickerStyles.optionList} keyboardShouldPersistTaps="handled">
-                {items.map((item) => {
+                {/* Browse directory button */}
+                {machineOnline && (
+                    <Pressable
+                        style={(p) => [pickerStyles.option, p.pressed && pickerStyles.optionPressed]}
+                        onPress={handleBrowseOpen}
+                    >
+                        <Ionicons name="folder-open-outline" size={16} color={theme.colors.button.primary.background} />
+                        <Text style={[pickerStyles.optionText, { color: theme.colors.button.primary.background }]}>
+                            {t('newSession.browseDirectories')}
+                        </Text>
+                        <Ionicons name="chevron-forward" size={14} color={theme.colors.button.primary.background} />
+                    </Pressable>
+                )}
+
+                {/* Directory browser */}
+                {showBrowser && (
+                    <View style={[pickerStyles.browserContainer, { backgroundColor: theme.colors.input.background, borderColor: theme.colors.divider }]}>
+                        {/* Breadcrumb / current path */}
+                        <View style={pickerStyles.browserHeader}>
+                            <Pressable
+                                onPress={handleBrowseUp}
+                                disabled={browseDir === '/'}
+                                style={(p) => [pickerStyles.browserBackButton, p.pressed && { opacity: 0.6 }]}
+                                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                            >
+                                <Ionicons
+                                    name="chevron-back"
+                                    size={16}
+                                    color={browseDir === '/' ? theme.colors.textSecondary : theme.colors.text}
+                                />
+                            </Pressable>
+                            <Text
+                                style={[pickerStyles.browserPath, { color: theme.colors.text }]}
+                                numberOfLines={1}
+                                ellipsizeMode="head"
+                            >
+                                {browseDir ? formatPathRelativeToHome(browseDir, homeDir) : '~'}
+                            </Text>
+                            <Pressable
+                                onPress={() => browseDir && handleBrowseSelect(browseDir)}
+                                style={(p) => [pickerStyles.browserSelectButton, p.pressed && { opacity: 0.6 }]}
+                                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                            >
+                                <Text style={{ fontSize: 13, color: theme.colors.button.primary.background, ...Typography.default('semiBold') }}>
+                                    {t('newSession.selectThisDir')}
+                                </Text>
+                            </Pressable>
+                        </View>
+
+                        {/* Loading / error / entries */}
+                        {isBrowsing ? (
+                            <View style={pickerStyles.browserLoading}>
+                                <ActivityIndicator size="small" color={theme.colors.textSecondary} />
+                            </View>
+                        ) : browseError ? (
+                            <Text style={[pickerStyles.browserError, { color: theme.colors.textSecondary }]}>
+                                {browseError}
+                            </Text>
+                        ) : (
+                            <ScrollView style={pickerStyles.browserList} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+                                {dirEntries.length === 0 ? (
+                                    <Text style={[pickerStyles.emptyText, { color: theme.colors.textSecondary }]}>
+                                        {t('newSession.emptyDirectory')}
+                                    </Text>
+                                ) : (
+                                    dirEntries.map((entry) => (
+                                        <Pressable
+                                            key={entry.name}
+                                            style={(p) => [pickerStyles.browserEntry, p.pressed && pickerStyles.optionPressed]}
+                                            onPress={() => {
+                                                if (entry.isDirectory) {
+                                                    handleBrowseNavigate(entry.name);
+                                                } else {
+                                                    // Files: select the parent directory
+                                                    if (browseDir) handleBrowseSelect(browseDir);
+                                                }
+                                            }}
+                                        >
+                                            <Ionicons
+                                                name={entry.isDirectory ? 'folder' : 'document-outline'}
+                                                size={16}
+                                                color={entry.isDirectory ? '#F5A623' : theme.colors.textSecondary}
+                                            />
+                                            <Text
+                                                style={[pickerStyles.optionText, { color: theme.colors.text, flex: 1 }]}
+                                                numberOfLines={1}
+                                            >
+                                                {entry.name}
+                                            </Text>
+                                            {entry.isDirectory && (
+                                                <Ionicons name="chevron-forward" size={14} color={theme.colors.textSecondary} />
+                                            )}
+                                        </Pressable>
+                                    ))
+                                )}
+                            </ScrollView>
+                        )}
+                    </View>
+                )}
+
+                {/* Recent paths */}
+                {allRecentItems.length > 0 && (
+                    <Text style={[pickerStyles.sectionLabel, { color: theme.colors.textSecondary, marginTop: 8 }]}>
+                        {t('newSession.recentDirectories')}
+                    </Text>
+                )}
+                {allRecentItems.map((item) => {
                     const isSelected = item.key === matchedItemKey;
 
                     return (
@@ -431,7 +641,7 @@ function PathPickerContent({
                             onPress={() => handleSuggestionPress(item)}
                         >
                             <Ionicons
-                                name="folder-outline"
+                                name="time-outline"
                                 size={16}
                                 color={theme.colors.textSecondary}
                             />
@@ -451,9 +661,9 @@ function PathPickerContent({
                     );
                 })}
 
-                {items.length === 0 && (
+                {allRecentItems.length === 0 && !showBrowser && (
                     <Text style={[pickerStyles.emptyText, { color: theme.colors.textSecondary }]}>
-                        no recent projects yet
+                        {t('newSession.noRecentProjects')}
                     </Text>
                 )}
             </ScrollView>
@@ -477,6 +687,7 @@ function NewSessionScreen() {
     const allMachines = useAllMachines({ includeOffline: true });
     const sessions = useSessions();
     const agentInputEnterToSend = useSetting('agentInputEnterToSend');
+    const recentMachinePaths = useSetting('recentMachinePaths');
 
     // Persisted draft state (survives navigation)
     const draft = useNewSessionDraft();
@@ -553,14 +764,26 @@ function NewSessionScreen() {
         }));
     }, [selectedMachineId, sessions, selectedMachine]);
 
-    // Auto-select first path when machine changes
+    // Build recent path items from persisted settings for selected machine
+    const recentPathItems = React.useMemo<PickerItem[]>(() => {
+        if (!selectedMachineId) return [];
+        const homeDir = selectedMachine?.metadata?.homeDir;
+        return recentMachinePaths
+            .filter(rp => rp.machineId === selectedMachineId)
+            .map(rp => ({
+                key: rp.path,
+                label: formatPathRelativeToHome(rp.path, homeDir),
+            }));
+    }, [selectedMachineId, selectedMachine, recentMachinePaths]);
+
+    // Auto-select first path when machine changes (prefer recent, then session history)
     React.useEffect(() => {
         if (!selectedMachineId || selectedPath !== null) {
             return;
         }
 
-        setSelectedPath(pathItems[0]?.label ?? '~');
-    }, [selectedMachineId, pathItems, selectedPath, setSelectedPath]);
+        setSelectedPath(recentPathItems[0]?.label ?? pathItems[0]?.label ?? '~');
+    }, [selectedMachineId, recentPathItems, pathItems, selectedPath, setSelectedPath]);
 
     const resolvedSelectedPath = React.useMemo(() => {
         return normalizePathForComparison(selectedPath, selectedHomeDir);
@@ -818,11 +1041,18 @@ function NewSessionScreen() {
                 spawnDirectory = worktreeKey;
             }
 
-            // Persist last used settings
+            // Persist last used settings + recent path
+            const updatedRecentPaths = [
+                { machineId: selectedMachineId, path: absolutePath },
+                ...recentMachinePaths.filter(
+                    rp => !(rp.machineId === selectedMachineId && rp.path === absolutePath),
+                ),
+            ].slice(0, 10);
             sync.applySettings({
                 lastUsedAgent: selectedAgent,
                 lastUsedPermissionMode: currentPermission.key,
                 lastUsedModelMode: currentModelKey,
+                recentMachinePaths: updatedRecentPaths,
             });
 
             const result = await machineSpawnNewSession({
@@ -905,7 +1135,7 @@ function NewSessionScreen() {
             style={styles.container}
         >
             <View style={styles.inner}>
-                <View style={{ maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 12, gap: 8, paddingTop: 12 }}>
+                <View style={{ maxWidth: layout.maxWidth, width: '100%', alignSelf: 'center', paddingHorizontal: 12, gap: 8, paddingTop: 12, zIndex: 11 }}>
 
                     {/* Config box */}
                     <View style={styles.configBox}>
@@ -1133,13 +1363,16 @@ function NewSessionScreen() {
 
                     {/* Web: inline popover */}
                     {Platform.OS === 'web' && activePicker && (
-                        <View style={[styles.popover, { backgroundColor: theme.colors.header.background }]}>
+                        <View style={[styles.popover, { backgroundColor: theme.colors.header.background, zIndex: 11 }]}>
                             {activePicker === 'path' ? (
                                 <PathPickerContent
                                     title="Project"
                                     items={pathItems}
                                     value={selectedPath}
                                     homeDir={selectedHomeDir}
+                                    machineId={selectedMachineId}
+                                    machineOnline={!isOffline}
+                                    recentPaths={recentPathItems}
                                     onChangeValue={setSelectedPath}
                                     onDone={() => setActivePicker(null)}
                                 />
@@ -1153,7 +1386,7 @@ function NewSessionScreen() {
                 {/* Web: click-away backdrop */}
                 {Platform.OS === 'web' && activePicker && (
                     <Pressable
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }}
                         onPress={() => setActivePicker(null)}
                     />
                 )}
@@ -1227,6 +1460,9 @@ function NewSessionScreen() {
                             items={pathItems}
                             value={selectedPath}
                             homeDir={selectedHomeDir}
+                            machineId={selectedMachineId}
+                            machineOnline={!isOffline}
+                            recentPaths={recentPathItems}
                             onChangeValue={setSelectedPath}
                             onDone={() => setActivePicker(null)}
                         />
@@ -1550,6 +1786,53 @@ const pickerStyles = {
         ...Typography.default(),
         ...Platform.select({ web: { userSelect: 'none' } as any, default: {} }),
     } as const,
+    browserContainer: {
+        borderRadius: 12,
+        borderWidth: 1,
+        marginBottom: 8,
+        overflow: 'hidden' as const,
+    },
+    browserHeader: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
+        gap: 4,
+    },
+    browserBackButton: {
+        padding: 4,
+    },
+    browserPath: {
+        flex: 1,
+        fontSize: 13,
+        ...Typography.default('semiBold'),
+        ...Platform.select({ web: { userSelect: 'none' } as any, default: {} }),
+    } as const,
+    browserSelectButton: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    browserLoading: {
+        paddingVertical: 20,
+        alignItems: 'center' as const,
+    },
+    browserError: {
+        fontSize: 13,
+        textAlign: 'center' as const,
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        ...Typography.default(),
+    } as const,
+    browserList: {
+        maxHeight: 200,
+    },
+    browserEntry: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        gap: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
 };
 
 export default React.memo(NewSessionScreen);

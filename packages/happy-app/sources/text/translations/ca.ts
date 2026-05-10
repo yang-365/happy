@@ -270,6 +270,14 @@ export const ca: TranslationStructure = {
         title: 'Iniciar nova sessió',
         machineOffline: 'La màquina està fora de línia',
         switchMachinesHint: '• Canvia de màquina fent clic a la màquina de dalt',
+        enterProjectPath: 'Introdueix la ruta del projecte',
+        usingCustomPath: 'ruta personalitzada a dalt',
+        browseDirectories: 'Explorar directoris',
+        cannotAccessDirectory: 'No es pot accedir a aquest directori',
+        selectThisDir: 'Seleccionar',
+        emptyDirectory: 'Directori buit',
+        recentDirectories: 'Recents',
+        noRecentProjects: 'cap projecte recent',
     },
 
     sessionHistory: {
