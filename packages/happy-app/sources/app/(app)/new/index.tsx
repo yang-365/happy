@@ -389,7 +389,7 @@ function PathPickerContent({
             const result = await machineBash(
                 machineId,
                 `ls -1pA "${dirPath}" 2>/dev/null | head -100`,
-                dirPath,
+                '/',
             );
 
             if (!result.success || result.exitCode !== 0) {
