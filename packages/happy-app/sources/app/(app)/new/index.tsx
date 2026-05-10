@@ -388,8 +388,8 @@ function PathPickerContent({
         try {
             const result = await machineBash(
                 machineId,
-                `ls -1pA "${dirPath}" 2>/dev/null | head -100`,
-                dirPath,
+                `ls -1pA "${dirPath}"`,
+                '/',
             );
 
             if (!result.success || result.exitCode !== 0) {
@@ -400,6 +400,7 @@ function PathPickerContent({
             const entries: DirEntry[] = result.stdout
                 .split('\n')
                 .filter((line) => line.trim().length > 0)
+                .slice(0, 100)
                 .map((line) => {
                     const isDir = line.endsWith('/');
                     return {
