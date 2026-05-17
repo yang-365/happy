@@ -1670,6 +1670,9 @@ class Sync {
 
     private fetchNativeUpdate = async () => {
         try {
+            // Updates disabled for self-managed builds
+            return;
+
             // Skip in development
             if ((Platform.OS !== 'android' && Platform.OS !== 'ios') || !Constants.expoConfig?.version) {
                 return;
