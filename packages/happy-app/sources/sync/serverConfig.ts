@@ -5,6 +5,7 @@ const serverConfigStorage = new MMKV({ id: 'server-config' });
 
 const SERVER_KEY = 'custom-server-url';
 const LOG_SERVER_KEY = 'log-server-url';
+const GATEWAY_TOKEN_KEY = 'gateway-token';
 const DEFAULT_SERVER_URL = 'https://api.cluster-fluster.com';
 
 export function getServerUrl(): string {
@@ -34,6 +35,23 @@ export function setLogServerUrl(url: string | null): void {
     } else {
         serverConfigStorage.delete(LOG_SERVER_KEY);
     }
+}
+
+export function getGatewayToken(): string | null {
+    return serverConfigStorage.getString(GATEWAY_TOKEN_KEY) || null;
+}
+
+export function setGatewayToken(token: string | null): void {
+    if (token && token.trim()) {
+        serverConfigStorage.set(GATEWAY_TOKEN_KEY, token.trim());
+    } else {
+        serverConfigStorage.delete(GATEWAY_TOKEN_KEY);
+    }
+}
+
+export function getGatewayHeaders(): Record<string, string> {
+    const token = getGatewayToken();
+    return token ? { 'X-Happy-Token': token } : {};
 }
 
 export function isUsingCustomServer(): boolean {

@@ -1,6 +1,6 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 
 /**
@@ -20,6 +20,7 @@ export async function connectService(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify({ token: JSON.stringify(token) })
         });
@@ -47,6 +48,7 @@ export async function disconnectService(credentials: AuthCredentials, service: s
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 

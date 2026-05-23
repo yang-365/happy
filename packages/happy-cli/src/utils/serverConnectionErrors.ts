@@ -52,7 +52,7 @@ import axios from 'axios';
 import chalk from 'chalk';
 import { exponentialBackoffDelay } from '@/utils/time';
 import { logger } from '@/ui/logger';
-import { configuration } from '@/configuration';
+import { configuration, getGatewayHeaders } from '@/configuration';
 
 /**
  * Configuration for offline reconnection behavior.
@@ -158,7 +158,8 @@ export function startOfflineReconnection<TSession>(
             timeout: 5000,
             validateStatus: (status) => status < 500, // 4xx = server is up, 5xx = server error
             headers: {
-                'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`
+                'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`,
+                ...getGatewayHeaders()
             }
         });
     };

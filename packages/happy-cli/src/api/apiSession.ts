@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client'
 import { AgentState, ClientToServerEvents, FileEventMessage, FileEventMessageSchema, Metadata, ServerToClientEvents, Session, Update, UserMessage, UserMessageSchema, Usage } from './types'
 import { decodeBase64, decryptBlob, decrypt, encodeBase64, encrypt } from './encryption';
 import { backoff, delay } from '@/utils/time';
-import { configuration } from '@/configuration';
+import { configuration, getGatewayHeaders } from '@/configuration';
 import { RawJSONLines } from '@/claude/types';
 import { randomUUID } from 'node:crypto';
 import { AsyncLock } from '@/utils/lock';
@@ -150,6 +150,7 @@ export class ApiSessionClient extends EventEmitter {
                 sessionId: this.sessionId,
                 happyClient: `cli-coding-session/${configuration.currentCliVersion}`
             },
+            extraHeaders: getGatewayHeaders(),
             path: '/v1/updates',
             reconnection: false,
             transports: ['websocket'],
@@ -294,7 +295,7 @@ export class ApiSessionClient extends EventEmitter {
             requestUrl,
             { ref },
             {
-                headers: { 'Authorization': `Bearer ${this.token}`, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': `Bearer ${this.token}`, 'Content-Type': 'application/json', ...getGatewayHeaders() },
                 timeout: 30000,
             },
         );
@@ -307,6 +308,7 @@ export class ApiSessionClient extends EventEmitter {
         const headers: Record<string, string> = {};
         if (isServerUrl) {
             headers['Authorization'] = `Bearer ${this.token}`;
+            Object.assign(headers, getGatewayHeaders());
         }
         const response = await axios.get(downloadUrl, {
             headers,
@@ -357,7 +359,8 @@ export class ApiSessionClient extends EventEmitter {
         return {
             'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`
+            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`,
+            ...getGatewayHeaders()
         };
     }
 

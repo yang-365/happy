@@ -339,6 +339,8 @@ export const zhHant: TranslationStructure = {
         failedToConnectToServer: '連線伺服器失敗',
         currentlyUsingCustomServer: '目前使用自訂伺服器',
         customServerUrlLabel: '自訂伺服器 URL',
+        gatewayTokenLabel: 'Gateway Token',
+        gatewayTokenPlaceholder: 'Optional: Nginx gateway token',
         advancedFeatureFooter: "這是一個進階功能。只有在您知道自己在做什麼時才更改伺服器。更改伺服器後您需要重新登入。"
     },
 

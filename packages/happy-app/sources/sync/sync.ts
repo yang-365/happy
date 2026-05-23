@@ -33,7 +33,7 @@ import {
 import type { MessageSentSource } from '@/track';
 import { parseToken } from '@/utils/parseToken';
 import { RevenueCat, LogLevel, PaywallResult } from './revenueCat';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { config } from '@/config';
 import { log } from '@/log';
 import { gitStatusSync } from './gitStatusSync';
@@ -929,6 +929,7 @@ class Sync {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -1304,6 +1305,7 @@ class Sync {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -1533,6 +1535,7 @@ class Sync {
                         'Authorization': `Bearer ${this.credentials.token}`,
                         'Content-Type': 'application/json',
                         'X-Happy-Client': getHappyClientId(),
+                        ...getGatewayHeaders(),
                     }
                 });
                 const data = await response.json() as {
@@ -1598,6 +1601,7 @@ class Sync {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
         if (!response.ok) {
@@ -1644,6 +1648,7 @@ class Sync {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 

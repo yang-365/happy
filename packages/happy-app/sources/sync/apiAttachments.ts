@@ -11,7 +11,7 @@
  *   3. Embed ref in the file event sent to the CLI
  */
 import { AuthCredentials } from '@/auth/tokenStorage';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { appendFormFile } from './uploadFormFile';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -64,6 +64,7 @@ export async function requestAttachmentUpload(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
+            ...getGatewayHeaders(),
         },
         body: JSON.stringify({ filename, size }),
     });
@@ -134,6 +135,7 @@ export async function uploadEncryptedBlob(
     };
     if (isServerUrl) {
         headers['Authorization'] = `Bearer ${credentials.token}`;
+        Object.assign(headers, getGatewayHeaders());
     }
 
     // Build a standalone ArrayBuffer of exactly encryptedData.length bytes.
@@ -192,6 +194,7 @@ export async function downloadEncryptedAttachment(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
+            ...getGatewayHeaders(),
         },
         body: JSON.stringify({ ref }),
     });
@@ -205,6 +208,7 @@ export async function downloadEncryptedAttachment(
     const headers: Record<string, string> = {};
     if (isServerUrl) {
         headers['Authorization'] = `Bearer ${credentials.token}`;
+        Object.assign(headers, getGatewayHeaders());
     }
     let blobRes: Response;
     try {

@@ -5,7 +5,7 @@ import {
     type VoiceUsageResponse,
 } from '@slopus/happy-wire';
 import { AuthCredentials } from '@/auth/tokenStorage';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 import { config } from '@/config';
 
@@ -29,6 +29,7 @@ export async function fetchVoiceCredentials(
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
             'X-Happy-Client': getHappyClientId(),
+            ...getGatewayHeaders(),
         },
         body: JSON.stringify({
             agentId
@@ -52,6 +53,7 @@ export async function fetchVoiceUsage(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'X-Happy-Client': getHappyClientId(),
+            ...getGatewayHeaders(),
         },
     });
 

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { decodeBase64, decryptLegacy, decryptWithDataKey } from '@/api/encryption';
 import type { Metadata } from '@/api/types';
-import { configuration } from '@/configuration';
+import { configuration, getGatewayHeaders } from '@/configuration';
 import {
     getLocalHappyAgentCredentialPath,
     readLocalHappyAgentCredentials,
@@ -131,6 +131,7 @@ async function fetchSessions(credentials: LocalHappyAgentCredentials): Promise<R
             headers: {
                 Authorization: `Bearer ${credentials.token}`,
                 'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`,
+                ...getGatewayHeaders(),
             },
         });
         return (response.data as { sessions: RawSession[] }).sessions;

@@ -13,6 +13,7 @@ import packageJson from '../package.json'
 class Configuration {
   public readonly serverUrl: string
   public readonly webappUrl: string
+  public readonly gatewayToken: string | undefined
   public readonly isDaemonProcess: boolean
 
   // Directories and paths (from persistence)
@@ -61,6 +62,9 @@ class Configuration {
       process.env.HAPPY_WEBAPP_URL ||
       readSettingsStringSync(this.settingsFile, 'webappUrl') ||
       'https://app.happy.engineering'
+    this.gatewayToken =
+      process.env.HAPPY_GATEWAY_TOKEN ||
+      readSettingsStringSync(this.settingsFile, 'gatewayToken')
 
     this.isExperimentalEnabled = ['true', '1', 'yes'].includes(process.env.HAPPY_EXPERIMENTAL?.toLowerCase() || '');
     this.disableCaffeinate = ['true', '1', 'yes'].includes(process.env.HAPPY_DISABLE_CAFFEINATE?.toLowerCase() || '');
@@ -83,7 +87,7 @@ class Configuration {
   }
 }
 
-function readSettingsStringSync(settingsFile: string, key: 'serverUrl' | 'webappUrl'): string | undefined {
+function readSettingsStringSync(settingsFile: string, key: 'serverUrl' | 'webappUrl' | 'gatewayToken'): string | undefined {
   try {
     if (!existsSync(settingsFile)) return undefined
     const raw = JSON.parse(readFileSync(settingsFile, 'utf8'))
@@ -95,3 +99,7 @@ function readSettingsStringSync(settingsFile: string, key: 'serverUrl' | 'webapp
 }
 
 export const configuration: Configuration = new Configuration()
+
+export function getGatewayHeaders(): Record<string, string> {
+  return configuration.gatewayToken ? { 'X-Happy-Token': configuration.gatewayToken } : {}
+}

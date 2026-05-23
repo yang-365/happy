@@ -1,6 +1,6 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 import {
     UserProfile,
@@ -29,6 +29,7 @@ export async function searchUsersByUsername(
                 headers: {
                     'Authorization': `Bearer ${credentials.token}`,
                     'X-Happy-Client': getHappyClientId(),
+                    ...getGatewayHeaders(),
                 }
             }
         );
@@ -68,6 +69,7 @@ export async function getUserProfile(
                 headers: {
                     'Authorization': `Bearer ${credentials.token}`,
                     'X-Happy-Client': getHappyClientId(),
+                    ...getGatewayHeaders(),
                 }
             }
         );
