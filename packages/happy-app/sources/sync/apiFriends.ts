@@ -125,6 +125,7 @@ export async function sendFriendRequest(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify({ uid: recipientId })
         });
@@ -167,6 +168,7 @@ export async function getFriendsList(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -201,6 +203,7 @@ export async function removeFriend(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify({ uid: friendId })
         });

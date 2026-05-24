@@ -1701,6 +1701,7 @@ class Sync {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Happy-Client': getHappyClientId(),
+                    ...getGatewayHeaders(),
                 },
                 body: JSON.stringify({
                     platform,
