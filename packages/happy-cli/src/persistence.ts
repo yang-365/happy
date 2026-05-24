@@ -45,6 +45,7 @@ interface Settings {
   sandboxConfig?: SandboxConfig
   serverUrl?: string
   webappUrl?: string
+  gatewayToken?: string
 }
 
 const defaultSettings: Settings = {

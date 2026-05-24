@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { readCredentials, clearCredentials, clearMachineId, readSettings } from '@/persistence';
+import { readCredentials, clearCredentials, clearMachineId, readSettings, updateSettings } from '@/persistence';
 import { authAndSetupMachineIfNeeded } from '@/ui/auth';
 import { configuration } from '@/configuration';
 import { existsSync, rmSync } from 'node:fs';
@@ -148,12 +148,22 @@ async function handleAuthLogout(): Promise<void> {
         console.log(chalk.gray('Stopped daemon'));
       } catch { }
 
-      // Remove entire happy directory (as current logout does)
-      if (existsSync(happyDir)) {
-        rmSync(happyDir, { recursive: true, force: true });
-      }
+      // Clear credentials and machine ID, but preserve settings (serverUrl, gatewayToken, etc.)
+      await clearCredentials();
+      console.log(chalk.gray('  Cleared credentials'));
+
+      await clearMachineId();
+      console.log(chalk.gray('  Cleared machine ID'));
+
+      // Reset onboarding state
+      await updateSettings(settings => ({
+        ...settings,
+        onboardingCompleted: false,
+        machineIdConfirmedByServer: undefined,
+      }));
 
       console.log(chalk.green('✓ Successfully logged out'));
+      console.log(chalk.gray('  Settings preserved (serverUrl, gatewayToken)'));
       console.log(chalk.gray('  Run "happy auth login" to authenticate again'));
     } catch (error) {
       throw new Error(`Failed to logout: ${error instanceof Error ? error.message : 'Unknown error'}`);
