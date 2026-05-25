@@ -140,16 +140,13 @@ export default function ServerConfigScreen() {
             return;
         }
 
-        const confirmed = await Modal.confirm(
-            t('server.changeServer'),
-            t('server.continueWithServer'),
-            { confirmText: t('common.continue'), destructive: true }
-        );
+        // Save immediately after successful validation
+        setServerUrl(inputUrl);
+        setGatewayToken(inputToken.trim() || null);
 
-        if (confirmed) {
-            setServerUrl(inputUrl);
-            setGatewayToken(inputToken.trim() || null);
-        }
+        // Show success and navigate back
+        Modal.alert(t('server.changeServer'), t('server.continueWithServer'));
+        router.back();
     };
 
     const handleReset = async () => {
