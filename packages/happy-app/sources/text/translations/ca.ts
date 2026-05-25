@@ -790,6 +790,7 @@ export const ca: TranslationStructure = {
         createAccount: 'Crea un compte',
         linkOrRestoreAccount: 'Enllaça o restaura un compte',
         loginWithMobileApp: 'Inicia sessió amb l\'aplicació mòbil',
+        configureServer: 'Configura el servidor',
     },
 
     review: {

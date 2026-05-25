@@ -806,6 +806,7 @@ export const pl: TranslationStructure = {
         createAccount: 'Utwórz konto',
         linkOrRestoreAccount: 'Połącz lub przywróć konto',
         loginWithMobileApp: 'Zaloguj się przez aplikację mobilną',
+        configureServer: 'Konfiguruj serwer',
     },
 
     review: {

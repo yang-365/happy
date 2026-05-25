@@ -790,6 +790,7 @@ export const zhHant: TranslationStructure = {
         createAccount: '建立帳戶',
         linkOrRestoreAccount: '連結或恢復帳戶',
         loginWithMobileApp: '使用行動應用程式登入',
+        configureServer: '配置伺服器',
     },
 
     review: {

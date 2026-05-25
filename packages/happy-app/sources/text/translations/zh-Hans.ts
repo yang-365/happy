@@ -791,6 +791,7 @@ export const zhHans: TranslationStructure = {
         createAccount: '创建账户',
         linkOrRestoreAccount: '链接或恢复账户',
         loginWithMobileApp: '使用移动应用登录',
+        configureServer: '配置服务器',
     },
 
     review: {
