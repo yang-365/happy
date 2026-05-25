@@ -95,6 +95,7 @@ class ApiSocket {
                 happyClient: getHappyClientId(),
                 appState: getCurrentAppState(),
             },
+            query: gatewayToken ? { gateway_token: gatewayToken } : {},
             extraHeaders: gatewayToken ? { 'X-Happy-Token': gatewayToken } : {},
             transports: ['websocket'],
             reconnection: true,
