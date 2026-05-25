@@ -99,6 +99,7 @@ export default {
         },
         plugins: [
             "./plugins/withEinkCompatibility.js",
+            "./plugins/withNetworkSecurityConfig.js",
             [
                 "expo-router",
                 {
