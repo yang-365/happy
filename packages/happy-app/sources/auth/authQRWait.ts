@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { decodeBase64, encodeBase64 } from '../encryption/base64';
-import { getServerUrl } from '@/sync/serverConfig';
+import { getServerUrl, getGatewayHeaders } from '@/sync/serverConfig';
 import { QRAuthKeyPair } from './authQRStart';
 import { decryptBox } from '@/encryption/libsodium';
 import { getHappyClientId } from '@/sync/apiSocket';
@@ -25,6 +25,7 @@ export async function authQRWait(keypair: QRAuthKeyPair, onProgress?: (dots: num
             }, {
                 headers: {
                     'X-Happy-Client': getHappyClientId(),
+                    ...getGatewayHeaders(),
                 }
             });
 

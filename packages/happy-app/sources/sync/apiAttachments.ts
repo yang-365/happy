@@ -11,7 +11,8 @@
  *   3. Embed ref in the file event sent to the CLI
  */
 import { AuthCredentials } from '@/auth/tokenStorage';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
+import { appendFormFile } from './uploadFormFile';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -63,6 +64,7 @@ export async function requestAttachmentUpload(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
+            ...getGatewayHeaders(),
         },
         body: JSON.stringify({ filename, size }),
     });
@@ -103,8 +105,10 @@ export async function uploadEncryptedBlob(
                 formData.append(k, v);
             }
         }
-        const blob = new Blob([encryptedData.buffer as ArrayBuffer], { type: 'application/octet-stream' });
-        formData.append('file', blob);
+        // S3's content-type rule on presigned POST is satisfied by the
+        // policy's Content-Type form field; the per-part type just needs
+        // to be something multipart-valid. Filename is cosmetic.
+        const cleanup = await appendFormFile(formData, encryptedData, 'file', 'blob', 'application/octet-stream');
         let response: Response;
         try {
             response = await fetch(upload.uploadUrl, {
@@ -112,9 +116,11 @@ export async function uploadEncryptedBlob(
                 body: formData,
             });
         } catch (err) {
+            await cleanup();
             const message = err instanceof Error ? err.message : String(err);
             throw new Error(`Blob upload (POST) network error to ${upload.uploadUrl}: ${message}`);
         }
+        await cleanup();
         if (!response.ok) {
             throw new Error(`Blob upload (POST) failed: ${response.status} ${response.statusText} at ${upload.uploadUrl}`);
         }
@@ -129,6 +135,7 @@ export async function uploadEncryptedBlob(
     };
     if (isServerUrl) {
         headers['Authorization'] = `Bearer ${credentials.token}`;
+        Object.assign(headers, getGatewayHeaders());
     }
 
     // Build a standalone ArrayBuffer of exactly encryptedData.length bytes.
@@ -187,6 +194,7 @@ export async function downloadEncryptedAttachment(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
+            ...getGatewayHeaders(),
         },
         body: JSON.stringify({ ref }),
     });
@@ -200,6 +208,7 @@ export async function downloadEncryptedAttachment(
     const headers: Record<string, string> = {};
     if (isServerUrl) {
         headers['Authorization'] = `Bearer ${credentials.token}`;
+        Object.assign(headers, getGatewayHeaders());
     }
     let blobRes: Response;
     try {

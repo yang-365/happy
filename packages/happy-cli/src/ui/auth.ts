@@ -1,5 +1,5 @@
 import { decodeBase64, encodeBase64, encodeBase64Url } from "@/api/encryption";
-import { configuration } from "@/configuration";
+import { configuration, getGatewayHeaders } from "@/configuration";
 import { randomBytes } from "node:crypto";
 import tweetnacl from 'tweetnacl';
 import axios from 'axios';
@@ -39,7 +39,8 @@ export async function doAuth(): Promise<Credentials | null> {
             supportsV2: true
         }, {
             headers: {
-                'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+                'X-Happy-Client': `cli/${configuration.currentCliVersion}`,
+                ...getGatewayHeaders()
             }
         });
         if (process.env.DEBUG) {
@@ -164,7 +165,8 @@ async function waitForAuthentication(keypair: tweetnacl.BoxKeyPair): Promise<Cre
                     supportsV2: true
                 }, {
                     headers: {
-                        'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+                        'X-Happy-Client': `cli/${configuration.currentCliVersion}`,
+                        ...getGatewayHeaders()
                     }
                 });
                 if (response.data.state === 'authorized') {

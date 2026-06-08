@@ -211,6 +211,8 @@ export const zhHant: TranslationStructure = {
         markdownCopyV2Subtitle: '長按開啟複製強制回應視窗',
         hideInactiveSessions: '隱藏非活躍工作階段',
         hideInactiveSessionsSubtitle: '僅在清單中顯示活躍的聊天',
+        groupToolCalls: '分組工具呼叫',
+        groupToolCallsSubtitle: '將連續的工具呼叫摺疊到單一容器中',
         privacy: '隱私',
         privacyDescription: '完全停用所有分析和遙測。不會向 PostHog 或任何其他追蹤服務傳送資料。',
         disableAnalytics: '停用分析',
@@ -337,6 +339,8 @@ export const zhHant: TranslationStructure = {
         failedToConnectToServer: '連線伺服器失敗',
         currentlyUsingCustomServer: '目前使用自訂伺服器',
         customServerUrlLabel: '自訂伺服器 URL',
+        gatewayTokenLabel: 'Gateway Token',
+        gatewayTokenPlaceholder: 'Optional: Nginx gateway token',
         advancedFeatureFooter: "這是一個進階功能。只有在您知道自己在做什麼時才更改伺服器。更改伺服器後您需要重新登入。"
     },
 
@@ -505,6 +509,16 @@ export const zhHant: TranslationStructure = {
     toolView: {
         input: '輸入',
         output: '輸出',
+    },
+
+    toolGroup: {
+        editedFiles: ({ count }: { count: number }) => `編輯了 ${count} 個檔案`,
+        readFiles: ({ count }: { count: number }) => `讀取了 ${count} 個檔案`,
+        ranCommands: ({ count }: { count: number }) => `執行了 ${count} 個指令`,
+        searched: ({ count }: { count: number }) => `搜尋了 ${count} 次`,
+        fetchedUrls: ({ count }: { count: number }) => `取得了 ${count} 個 URL`,
+        ranTasks: ({ count }: { count: number }) => `執行了 ${count} 個任務`,
+        usedTools: ({ count }: { count: number }) => `使用了 ${count} 個工具`,
     },
 
     tools: {
@@ -776,6 +790,7 @@ export const zhHant: TranslationStructure = {
         createAccount: '建立帳戶',
         linkOrRestoreAccount: '連結或恢復帳戶',
         loginWithMobileApp: '使用行動應用程式登入',
+        configureServer: '配置伺服器',
     },
 
     review: {

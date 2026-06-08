@@ -5,7 +5,7 @@
  * Environment files should be loaded using Node's --env-file flag
  */
 
-import { existsSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import packageJson from '../package.json'
@@ -13,6 +13,7 @@ import packageJson from '../package.json'
 class Configuration {
   public readonly serverUrl: string
   public readonly webappUrl: string
+  public readonly gatewayToken: string | undefined
   public readonly isDaemonProcess: boolean
 
   // Directories and paths (from persistence)
@@ -29,10 +30,6 @@ class Configuration {
   public readonly disableCaffeinate: boolean
 
   constructor() {
-    // Server configuration - priority: parameter > environment > default
-    this.serverUrl = process.env.HAPPY_SERVER_URL || 'https://api.cluster-fluster.com'
-    this.webappUrl = process.env.HAPPY_WEBAPP_URL || 'https://app.happy.engineering'
-
     // Check if we're running as daemon based on process args
     const args = process.argv.slice(2)
     this.isDaemonProcess = args.length >= 2 && args[0] === 'daemon' && (args[1] === 'start-sync')
@@ -52,6 +49,22 @@ class Configuration {
     this.daemonStateFile = join(this.happyHomeDir, 'daemon.state.json')
     this.daemonLockFile = join(this.happyHomeDir, 'daemon.state.json.lock')
     this.sessionsFile = join(this.happyHomeDir, 'sessions.json')
+
+    // URL precedence (both): HAPPY_*_URL env > settings.<key> > default.
+    // Settings are read sync here (avoid circular import with persistence.ts).
+    // webappUrl must follow the same chain as serverUrl, otherwise `happy server`
+    // self-host points the API at localhost but auth still opens the prod webapp.
+    this.serverUrl =
+      process.env.HAPPY_SERVER_URL ||
+      readSettingsStringSync(this.settingsFile, 'serverUrl') ||
+      'https://api.cluster-fluster.com'
+    this.webappUrl =
+      process.env.HAPPY_WEBAPP_URL ||
+      readSettingsStringSync(this.settingsFile, 'webappUrl') ||
+      'https://app.happy.engineering'
+    this.gatewayToken =
+      process.env.HAPPY_GATEWAY_TOKEN ||
+      readSettingsStringSync(this.settingsFile, 'gatewayToken')
 
     this.isExperimentalEnabled = ['true', '1', 'yes'].includes(process.env.HAPPY_EXPERIMENTAL?.toLowerCase() || '');
     this.disableCaffeinate = ['true', '1', 'yes'].includes(process.env.HAPPY_DISABLE_CAFFEINATE?.toLowerCase() || '');
@@ -74,4 +87,19 @@ class Configuration {
   }
 }
 
+function readSettingsStringSync(settingsFile: string, key: 'serverUrl' | 'webappUrl' | 'gatewayToken'): string | undefined {
+  try {
+    if (!existsSync(settingsFile)) return undefined
+    const raw = JSON.parse(readFileSync(settingsFile, 'utf8'))
+    const value = raw?.[key]
+    return typeof value === 'string' && value.length > 0 ? value : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export const configuration: Configuration = new Configuration()
+
+export function getGatewayHeaders(): Record<string, string> {
+  return configuration.gatewayToken ? { 'X-Happy-Token': configuration.gatewayToken } : {}
+}

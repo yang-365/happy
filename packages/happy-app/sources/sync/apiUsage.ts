@@ -1,6 +1,6 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 
 export interface UsageDataPoint {
@@ -37,6 +37,7 @@ export async function queryUsage(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify(params)
         });

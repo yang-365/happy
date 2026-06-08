@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { encodeBase64, encodeBase64Url, authChallenge } from './encryption';
-import { configuration } from '@/configuration';
+import { configuration, getGatewayHeaders } from '@/configuration';
 
 /**
  * Note: This function is deprecated. Use readPrivateKey/writePrivateKey from persistence module instead.
@@ -25,7 +25,8 @@ export async function authGetToken(secret: Uint8Array): Promise<string> {
     signature: encodeBase64(signature)
   }, {
     headers: {
-      'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+      'X-Happy-Client': `cli/${configuration.currentCliVersion}`,
+      ...getGatewayHeaders()
     }
   });
 

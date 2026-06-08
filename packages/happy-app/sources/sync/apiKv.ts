@@ -1,6 +1,6 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 
 //
@@ -78,6 +78,7 @@ export async function kvGet(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -120,6 +121,7 @@ export async function kvList(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -156,6 +158,7 @@ export async function kvBulkGet(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify({ keys })
         });
@@ -195,6 +198,7 @@ export async function kvMutate(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify({ mutations })
         });

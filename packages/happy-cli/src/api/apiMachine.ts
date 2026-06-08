@@ -5,7 +5,7 @@
 
 import { io, Socket } from 'socket.io-client';
 import { logger } from '@/ui/logger';
-import { configuration } from '@/configuration';
+import { configuration, getGatewayHeaders } from '@/configuration';
 import { MachineMetadata, DaemonState, Machine, Update, UpdateMachineBody } from './types';
 import { registerCommonHandlers, SpawnSessionOptions, SpawnSessionResult } from '../modules/common/registerCommonHandlers';
 import { encodeBase64, decodeBase64, encrypt, decrypt } from './encryption';
@@ -364,6 +364,7 @@ export class ApiMachineClient {
                 machineId: this.machine.id,
                 happyClient: `cli-daemon/${configuration.currentCliVersion}`
             },
+            extraHeaders: getGatewayHeaders(),
             path: '/v1/updates',
             reconnection: false,
         });

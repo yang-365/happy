@@ -212,6 +212,8 @@ export const zhHans: TranslationStructure = {
         markdownCopyV2Subtitle: '长按打开复制模态框',
         hideInactiveSessions: '隐藏非活跃会话',
         hideInactiveSessionsSubtitle: '仅在列表中显示活跃的聊天',
+        groupToolCalls: '分组工具调用',
+        groupToolCallsSubtitle: '将连续的工具调用折叠到一个容器中',
         privacy: '隐私',
         privacyDescription: '完全禁用所有分析和遥测。不会向 PostHog 或任何其他跟踪服务发送数据。',
         disableAnalytics: '禁用分析',
@@ -338,6 +340,8 @@ export const zhHans: TranslationStructure = {
         failedToConnectToServer: '连接服务器失败',
         currentlyUsingCustomServer: '当前使用自定义服务器',
         customServerUrlLabel: '自定义服务器 URL',
+        gatewayTokenLabel: 'Gateway Token',
+        gatewayTokenPlaceholder: 'Optional: Nginx gateway token',
         advancedFeatureFooter: "这是一个高级功能。只有在您知道自己在做什么时才更改服务器。更改服务器后您需要重新登录。"
     },
 
@@ -506,6 +510,16 @@ export const zhHans: TranslationStructure = {
     toolView: {
         input: '输入',
         output: '输出',
+    },
+
+    toolGroup: {
+        editedFiles: ({ count }: { count: number }) => `编辑了 ${count} 个文件`,
+        readFiles: ({ count }: { count: number }) => `读取了 ${count} 个文件`,
+        ranCommands: ({ count }: { count: number }) => `执行了 ${count} 个命令`,
+        searched: ({ count }: { count: number }) => `搜索了 ${count} 次`,
+        fetchedUrls: ({ count }: { count: number }) => `获取了 ${count} 个 URL`,
+        ranTasks: ({ count }: { count: number }) => `执行了 ${count} 个任务`,
+        usedTools: ({ count }: { count: number }) => `使用了 ${count} 个工具`,
     },
 
     tools: {
@@ -777,6 +791,7 @@ export const zhHans: TranslationStructure = {
         createAccount: '创建账户',
         linkOrRestoreAccount: '链接或恢复账户',
         loginWithMobileApp: '使用移动应用登录',
+        configureServer: '配置服务器',
     },
 
     review: {

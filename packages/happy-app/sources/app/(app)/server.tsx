@@ -9,8 +9,9 @@ import { RoundButton } from '@/components/RoundButton';
 import { Modal } from '@/modal';
 import { layout } from '@/components/layout';
 import { t } from '@/text';
-import { getServerUrl, setServerUrl, validateServerUrl, getServerInfo } from '@/sync/serverConfig';
+import { getServerUrl, setServerUrl, validateServerUrl, getServerInfo, getGatewayToken, setGatewayToken } from '@/sync/serverConfig';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useAuth } from '@/auth/AuthContext';
 
 const stylesheet = StyleSheet.create((theme) => ({
     keyboardAvoidingView: {
@@ -79,8 +80,11 @@ export default function ServerConfigScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
+    const auth = useAuth();
     const serverInfo = getServerInfo();
+    const previousServerUrl = getServerUrl();
     const [inputUrl, setInputUrl] = useState(serverInfo.isCustom ? getServerUrl() : '');
+    const [inputToken, setInputToken] = useState(getGatewayToken() || '');
     const [error, setError] = useState<string | null>(null);
     const [isValidating, setIsValidating] = useState(false);
 
@@ -88,12 +92,17 @@ export default function ServerConfigScreen() {
         try {
             setIsValidating(true);
             setError(null);
+
+            const headers: Record<string, string> = {
+                'Accept': 'text/plain'
+            };
+            if (inputToken.trim()) {
+                headers['X-Happy-Token'] = inputToken.trim();
+            }
             
             const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Accept': 'text/plain'
-                }
+                headers
             });
             
             if (!response.ok) {
@@ -128,21 +137,26 @@ export default function ServerConfigScreen() {
             return;
         }
 
-        // Validate the server
+        // Validate the server (with token if provided)
         const isValid = await validateServer(inputUrl);
         if (!isValid) {
             return;
         }
 
-        const confirmed = await Modal.confirm(
-            t('server.changeServer'),
-            t('server.continueWithServer'),
-            { confirmText: t('common.continue'), destructive: true }
-        );
+        // Save server config
+        setServerUrl(inputUrl);
+        setGatewayToken(inputToken.trim() || null);
 
-        if (confirmed) {
-            setServerUrl(inputUrl);
+        // If authenticated and server URL changed, logout to force re-auth on new server
+        const serverChanged = inputUrl.trim() !== previousServerUrl;
+        if (auth.isAuthenticated && serverChanged) {
+            await auth.logout();
+            return;
         }
+
+        // Navigate back (for unauthenticated users or same server)
+        Modal.alert(t('server.changeServer'), t('server.continueWithServer'));
+        router.back();
     };
 
     const handleReset = async () => {
@@ -154,7 +168,13 @@ export default function ServerConfigScreen() {
 
         if (confirmed) {
             setServerUrl(null);
+            setGatewayToken(null);
+            if (auth.isAuthenticated) {
+                await auth.logout();
+                return;
+            }
             setInputUrl('');
+            setInputToken('');
         }
     };
 
@@ -191,6 +211,24 @@ export default function ServerConfigScreen() {
                                 autoCapitalize="none"
                                 autoCorrect={false}
                                 keyboardType="url"
+                                editable={!isValidating}
+                            />
+                            <Text style={styles.labelText}>{t('server.gatewayTokenLabel').toUpperCase()}</Text>
+                            <TextInput
+                                style={[
+                                    styles.textInput,
+                                    isValidating && styles.textInputValidating
+                                ]}
+                                value={inputToken}
+                                onChangeText={(text) => {
+                                    setInputToken(text);
+                                    setError(null);
+                                }}
+                                placeholder={t('server.gatewayTokenPlaceholder')}
+                                placeholderTextColor={theme.colors.input.placeholder}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                secureTextEntry={true}
                                 editable={!isValidating}
                             />
                             {error && (

@@ -1,6 +1,6 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
-import { getServerUrl } from './serverConfig';
+import { getServerUrl, getGatewayHeaders } from './serverConfig';
 import { getHappyClientId } from './apiSocket';
 import { Artifact, ArtifactCreateRequest, ArtifactUpdateRequest, ArtifactUpdateResponse } from './artifactTypes';
 
@@ -16,6 +16,7 @@ export async function fetchArtifacts(credentials: AuthCredentials): Promise<Arti
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -40,6 +41,7 @@ export async function fetchArtifact(credentials: AuthCredentials, artifactId: st
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 
@@ -71,6 +73,7 @@ export async function createArtifact(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify(request)
         });
@@ -104,6 +107,7 @@ export async function updateArtifact(
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             },
             body: JSON.stringify(request)
         });
@@ -135,6 +139,7 @@ export async function deleteArtifact(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'X-Happy-Client': getHappyClientId(),
+                ...getGatewayHeaders(),
             }
         });
 

@@ -211,6 +211,8 @@ export const ca: TranslationStructure = {
         markdownCopyV2Subtitle: 'Pulsació llarga obre modal de còpia',
         hideInactiveSessions: 'Amaga les sessions inactives',
         hideInactiveSessionsSubtitle: 'Mostra només els xats actius a la llista',
+        groupToolCalls: 'Agrupa les crides a eines',
+        groupToolCallsSubtitle: 'Replega les crides consecutives a eines en un sol contenidor',
         privacy: 'Privadesa',
         privacyDescription: 'Desactiva completament tota l\'analítica i telemetria. No s\'enviaran dades a PostHog ni a cap altre servei de seguiment.',
         disableAnalytics: 'Desactivar analítica',
@@ -337,6 +339,8 @@ export const ca: TranslationStructure = {
         failedToConnectToServer: 'Ha fallat la connexió amb el servidor',
         currentlyUsingCustomServer: 'Actualment utilitzant un servidor personalitzat',
         customServerUrlLabel: 'URL del servidor personalitzat',
+        gatewayTokenLabel: 'Gateway Token',
+        gatewayTokenPlaceholder: 'Optional: Nginx gateway token',
         advancedFeatureFooter: 'Aquesta és una funció avançada. Només canvia el servidor si saps el que fas. Hauràs de tancar la sessió i tornar-la a iniciar després de canviar els servidors.'
     },
 
@@ -505,6 +509,16 @@ export const ca: TranslationStructure = {
     toolView: {
         input: 'Entrada',
         output: 'Sortida',
+    },
+
+    toolGroup: {
+        editedFiles: ({ count }: { count: number }) => count === 1 ? 'S\'ha editat 1 fitxer' : `S'han editat ${count} fitxers`,
+        readFiles: ({ count }: { count: number }) => count === 1 ? 'S\'ha llegit 1 fitxer' : `S'han llegit ${count} fitxers`,
+        ranCommands: ({ count }: { count: number }) => count === 1 ? 'S\'ha executat 1 comanda' : `S'han executat ${count} comandes`,
+        searched: ({ count }: { count: number }) => count === 1 ? 'S\'ha cercat 1 vegada' : `S'ha cercat ${count} vegades`,
+        fetchedUrls: ({ count }: { count: number }) => count === 1 ? 'S\'ha obtingut 1 URL' : `S'han obtingut ${count} URLs`,
+        ranTasks: ({ count }: { count: number }) => count === 1 ? 'S\'ha executat 1 tasca' : `S'han executat ${count} tasques`,
+        usedTools: ({ count }: { count: number }) => count === 1 ? 'S\'ha usat 1 eina' : `S'han usat ${count} eines`,
     },
 
     tools: {
@@ -776,6 +790,7 @@ export const ca: TranslationStructure = {
         createAccount: 'Crea un compte',
         linkOrRestoreAccount: 'Enllaça o restaura un compte',
         loginWithMobileApp: 'Inicia sessió amb l\'aplicació mòbil',
+        configureServer: 'Configura el servidor',
     },
 
     review: {

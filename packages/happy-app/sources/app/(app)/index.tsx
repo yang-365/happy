@@ -1,6 +1,6 @@
 import { RoundButton } from "@/components/RoundButton";
 import { useAuth } from "@/auth/AuthContext";
-import { Text, View, Image, Platform } from "react-native";
+import { Text, View, Image, Platform, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as React from 'react';
 import { encodeBase64 } from "@/encryption/base64";
@@ -14,6 +14,8 @@ import { trackAccountCreated, trackAccountRestored } from '@/track';
 import { HomeHeaderNotAuth } from "@/components/HomeHeader";
 import { MainView } from "@/components/MainView";
 import { t } from '@/text';
+import { isUsingCustomServer, getServerInfo } from '@/sync/serverConfig';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Home() {
     const auth = useAuth();
@@ -103,6 +105,7 @@ function NotAuthenticated() {
                     </View>
                 </>
             )}
+            <ServerConfigLink />
         </View>
     );
 
@@ -163,6 +166,7 @@ function NotAuthenticated() {
                             </View>
                         </>)
                     }
+                    <ServerConfigLink />
                 </View>
             </View>
         </View>
@@ -174,6 +178,26 @@ function NotAuthenticated() {
             {isLandscape ? landscapeLayout : portraitLayout}
         </>
     )
+}
+
+function ServerConfigLink() {
+    const { theme } = useUnistyles();
+    const router = useRouter();
+    const isCustom = isUsingCustomServer();
+    const serverInfo = getServerInfo();
+
+    return (
+        <Pressable
+            style={styles.serverConfigLink}
+            onPress={() => router.push('/server')}
+            hitSlop={10}
+        >
+            <Ionicons name="server-outline" size={16} color={theme.colors.textSecondary} />
+            <Text style={styles.serverConfigText}>
+                {isCustom ? serverInfo.hostname : t('welcome.configureServer')}
+            </Text>
+        </Pressable>
+    );
 }
 
 const styles = StyleSheet.create((theme) => ({
@@ -260,5 +284,16 @@ const styles = StyleSheet.create((theme) => ({
     },
     landscapeButtonContainerSecondary: {
         width: 280,
+    },
+    serverConfigLink: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 24,
+        gap: 6,
+    },
+    serverConfigText: {
+        ...Typography.default(),
+        fontSize: 14,
+        color: theme.colors.textSecondary,
     },
 }));

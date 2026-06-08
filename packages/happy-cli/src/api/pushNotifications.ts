@@ -2,7 +2,7 @@ import axios from 'axios'
 import { logger } from '@/ui/logger'
 import { Expo, ExpoPushMessage } from 'expo-server-sdk'
 import type { Metadata } from './types'
-import { configuration } from '@/configuration'
+import { configuration, getGatewayHeaders } from '@/configuration'
 
 export interface PushToken {
     id: string
@@ -96,7 +96,8 @@ export class PushNotificationClient {
                         headers: {
                             'Authorization': `Bearer ${this.token}`,
                             'Content-Type': 'application/json',
-                            'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`
+                            'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`,
+                            ...getGatewayHeaders()
                         }
                     }
                 )
@@ -288,6 +289,7 @@ export class PushNotificationClient {
                             'Authorization': `Bearer ${this.token}`,
                             'Content-Type': 'application/json',
                             'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`,
+                            ...getGatewayHeaders(),
                         },
                         timeout: 15000,
                     }

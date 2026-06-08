@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { TokenStorage } from '@/auth/tokenStorage';
 import { Encryption } from './encryption/encryption';
 import { storage } from './storage';
+import { getGatewayToken } from './serverConfig';
 
 export function getHappyClientId(): string {
     let platform: string = Platform.OS; // 'ios' | 'android' | 'web'
@@ -85,6 +86,7 @@ class ApiSocket {
 
         this.updateStatus('connecting');
 
+        const gatewayToken = getGatewayToken();
         this.socket = io(this.config.endpoint, {
             path: '/v1/updates',
             auth: {
@@ -93,6 +95,8 @@ class ApiSocket {
                 happyClient: getHappyClientId(),
                 appState: getCurrentAppState(),
             },
+            query: gatewayToken ? { gateway_token: gatewayToken } : {},
+            extraHeaders: gatewayToken ? { 'X-Happy-Token': gatewayToken } : {},
             transports: ['websocket'],
             reconnection: true,
             reconnectionDelay: 1000,
@@ -215,11 +219,15 @@ class ApiSocket {
         }
 
         const url = `${this.config.endpoint}${path}`;
-        const headers = {
+        const gatewayToken = getGatewayToken();
+        const headers: Record<string, string> = {
             'Authorization': `Bearer ${credentials.token}`,
             'X-Happy-Client': getHappyClientId(),
-            ...options?.headers
+            ...options?.headers as Record<string, string>
         };
+        if (gatewayToken) {
+            headers['X-Happy-Token'] = gatewayToken;
+        }
 
         return fetch(url, {
             ...options,
